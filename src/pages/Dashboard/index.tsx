@@ -50,7 +50,6 @@ const Dashboard: React.FC = () => {
         },
       );
 
-      console.log(formattedTransactions);
       setTransactions(response.data.transactions);
       setBalance(response.data.balance);
     }
