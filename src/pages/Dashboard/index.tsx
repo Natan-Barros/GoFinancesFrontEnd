@@ -32,6 +32,7 @@ interface Balance {
 const Dashboard: React.FC = () => {
   const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [balance, setBalance] = useState<Balance>({} as Balance);
+  const [alert, setAlert] = useState("");
 
   useEffect(() => {
     async function loadTransactions(): Promise<void> {
@@ -54,7 +55,8 @@ const Dashboard: React.FC = () => {
           setTransactions(response.data.transactions);
           setBalance(response.data.balance);
         })
-        .catch((error) => {
+        .catch(() => {
+          setAlert("A API está OFF");
         });
     }
 
@@ -63,7 +65,7 @@ const Dashboard: React.FC = () => {
 
   return (
     <>
-      <Header />
+      <Header alert={alert} />
       <Container>
         <CardContainer>
           <Card>
