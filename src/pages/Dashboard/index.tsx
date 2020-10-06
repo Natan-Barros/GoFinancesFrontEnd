@@ -35,23 +35,27 @@ const Dashboard: React.FC = () => {
 
   useEffect(() => {
     async function loadTransactions(): Promise<void> {
-      const response = await api.get('transactions');
-      const formattedTransactions = response.data.transactions.map(
-        (transaction: Transaction) => {
-          // eslint-disable-next-line
-          transaction.formattedValue = formatValue(transaction.value);
+      await api.get('transactions')
+        .then((response) => {
+          const formattedTransactions = response.data.transactions.map(
+            (transaction: Transaction) => {
+              // eslint-disable-next-line
+              transaction.formattedValue = formatValue(transaction.value);
 
-          // eslint-disable-next-line
-          transaction.formattedDate = new Date(transaction.created_at.toString()).toLocaleString(
-            'pt-BR',
-            { timeZone: 'UTC' },
+              // eslint-disable-next-line
+              transaction.formattedDate = new Date(transaction.created_at.toString()).toLocaleString(
+                'pt-BR',
+                { timeZone: 'UTC' },
+              );
+              return transaction;
+            },
           );
-          return transaction;
-        },
-      );
 
-      setTransactions(response.data.transactions);
-      setBalance(response.data.balance);
+          setTransactions(response.data.transactions);
+          setBalance(response.data.balance);
+        })
+        .catch((error) => {
+        });
     }
 
     loadTransactions();
