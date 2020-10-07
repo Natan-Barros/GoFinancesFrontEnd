@@ -32,27 +32,32 @@ interface Balance {
 const Dashboard: React.FC = () => {
   const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [balance, setBalance] = useState<Balance>({} as Balance);
+  const [alert, setAlert] = useState("");
 
   useEffect(() => {
     async function loadTransactions(): Promise<void> {
-      const response = await api.get('transactions');
-      const formattedTransactions = response.data.transactions.map(
-        (transaction: Transaction) => {
-          // eslint-disable-next-line
-          transaction.formattedValue = formatValue(transaction.value);
+      await api.get('transactions')
+        .then((response) => {
+          const formattedTransactions = response.data.transactions.map(
+            (transaction: Transaction) => {
+              // eslint-disable-next-line
+              transaction.formattedValue = formatValue(transaction.value);
 
-          // eslint-disable-next-line
-          transaction.formattedDate = new Date(transaction.created_at.toString()).toLocaleString(
-            'pt-BR',
-            { timeZone: 'UTC' },
+              // eslint-disable-next-line
+              transaction.formattedDate = new Date(transaction.created_at.toString()).toLocaleString(
+                'pt-BR',
+                { timeZone: 'UTC' },
+              );
+              return transaction;
+            },
           );
-          return transaction;
-        },
-      );
 
-      console.log(formattedTransactions);
-      setTransactions(response.data.transactions);
-      setBalance(response.data.balance);
+          setTransactions(response.data.transactions);
+          setBalance(response.data.balance);
+        })
+        .catch(() => {
+          setAlert("A API está OFF");
+        });
     }
 
     loadTransactions();
@@ -60,7 +65,7 @@ const Dashboard: React.FC = () => {
 
   return (
     <>
-      <Header />
+      <Header alert={alert} />
       <Container>
         <CardContainer>
           <Card>
@@ -69,7 +74,7 @@ const Dashboard: React.FC = () => {
               <img src={income} alt="Income" />
             </header>
             <h1 data-testid="balance-income">
-              {formatValue(Number(balance.income))}
+              {formatValue(Number(balance.income || 0))}
             </h1>
           </Card>
           <Card>
@@ -78,7 +83,7 @@ const Dashboard: React.FC = () => {
               <img src={outcome} alt="Outcome" />
             </header>
             <h1 data-testid="balance-outcome">
-              {formatValue(Number(balance.outcome))}
+              {formatValue(Number(balance.outcome || 0))}
             </h1>
           </Card>
           <Card total>
@@ -87,7 +92,7 @@ const Dashboard: React.FC = () => {
               <img src={total} alt="Total" />
             </header>
             <h1 data-testid="balance-total">
-              {formatValue(Number(balance.total))}
+              {formatValue(Number(balance.total || 0))}
             </h1>
           </Card>
         </CardContainer>
